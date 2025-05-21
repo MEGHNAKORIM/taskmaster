@@ -1,0 +1,285 @@
+# Karkhana Assignment Reference Document
+
+## Project Cost Tracker
+
+## 1. Project Overview
+
+You will build a **Project Cost Tracker** mini web application to help users manage project expenses efficiently. Users can add items and other costs related to a project and view the total cost dynamically.
+
+---
+
+## 2. Core Functionalities
+
+| Feature | Description |
+| --- | --- |
+| Add, Edit, Delete **Items** | Items represent things like hardware, software, or services. Each has a name and cost. |
+| Add, Edit, Delete **Other Costs** | Other miscellaneous costs like shipping or taxes with description and amount. |
+| Display **Total Project Cost** | Sum of costs from items and other costs combined. |
+| User **Authentication** | Users must log in to keep their data private and secure. |
+| Data Persistence with **Firebase Firestore** | All data is saved and retrieved from the cloud database. |
+
+---
+
+## 3. Technology Stack Summary
+
+| Role | Technology / Tool | Purpose |
+| --- | --- | --- |
+| Frontend Framework | React.js | UI building |
+| State Management | Redux Toolkit | Manage application state globally |
+| UI Components | Chakra UI | Ready-made React UI components |
+| Backend Database | Firebase Firestore | Cloud NoSQL database |
+| Authentication | Firebase Authentication | User login/signup management |
+| Hosting (optional) | Vercel / Netlify | Deploy your app online |
+
+---
+
+## 4. Detailed Firebase Explanation & Setup
+
+### 4.1 What is Firebase?
+
+Firebase is a cloud platform by Google that provides backend services, so you don’t have to build your own server. It includes:
+
+- **Firestore:** A scalable NoSQL cloud database to store and sync app data.
+- **Authentication:** Ready-made solutions for user sign-up, login, and identity management.
+
+This lets you focus on frontend development while Firebase handles backend infrastructure.
+
+---
+
+### 4.2 How Firestore Works
+
+- Data is stored as **collections** of **documents**.
+- Each document contains **fields** (key-value pairs).
+- For example, a user document can store their project items and other costs as subcollections.
+- Firestore allows **real-time updates**; any changes reflect immediately in your app.
+
+---
+
+### 4.3 Firebase Authentication Overview
+
+- Users can sign up or sign in using email/password or Google accounts.
+- Firebase manages user sessions securely.
+- Once logged in, users can only access their own data in Firestore.
+- Firebase provides easy SDKs to implement auth in React apps.
+
+---
+
+### 4.4 Setting Up Firebase Project (Step-by-step)
+
+1. **Create Firebase Project:**
+    - Go to [Firebase Console](https://console.firebase.google.com/).
+    - Click "Add project" and enter project name (e.g., "project-cost-tracker").
+    - Follow the setup wizard, disable Google Analytics for simplicity.
+2. **Enable Firestore:**
+    - In the Firebase console, go to **Firestore Database**.
+    - Click "Create database".
+    - Select production mode (you can also start in test mode but for learning production mode is recommended).
+    - Choose your location.
+3. **Enable Authentication:**
+    - Go to **Authentication** section.
+    - Click on **Get started**.
+    - Enable **Email/Password** provider.
+    - Optionally enable Google sign-in or other providers.
+4. **Add Web App to Firebase Project:**
+    - In the Firebase console, click the gear icon → **Project settings**.
+    - Select **Your apps** tab → Add Web app.
+    - Register your app (give it a name).
+    - Copy the Firebase config object (contains apiKey, authDomain, etc.).
+    - This config will be used in your React app.
+
+---
+
+### 4.5 Firestore Data Structure Example
+
+```
+/users/{userId}/items/{itemId}
+  - name: "Laptop"
+  - cost: 1200
+
+/users/{userId}/otherCosts/{costId}
+  - description: "Shipping"
+  - amount: 50
+
+```
+
+- Each user has their own `items` and `otherCosts` subcollections.
+- Data is segregated by user ID for privacy.
+
+---
+
+## 5. App Functionality & Data Flow
+
+### 5.1 User Authentication Flow
+
+- When the app starts, check if user is logged in.
+- If not logged in, show login/sign-up screen.
+- After successful login, fetch user-specific data from Firestore.
+- Store user info in Redux state for app-wide use.
+- Allow logout, which clears user state.
+
+### 5.2 Managing Items & Other Costs
+
+- On Add:
+    - User fills form for item or other cost.
+    - Validate inputs (name/description not empty, cost/amount positive).
+    - Add the new document to Firestore under current user’s collection.
+    - Update Redux state to reflect change immediately.
+- On Edit:
+    - User edits the selected item or cost.
+    - Update Firestore document.
+    - Update Redux state.
+- On Delete:
+    - User confirms deletion.
+    - Remove document from Firestore.
+    - Update Redux state.
+
+### 5.3 Displaying Totals & Lists
+
+- Fetch items and other costs from Firestore on login.
+- Use Redux selectors to get current state.
+- Calculate total cost = sum of item costs + sum of other costs.
+- Show lists of items and other costs separately.
+- Show total cost prominently.
+
+---
+
+## 6. Redux State Management (Basic Structure)
+
+- `authSlice` — stores user authentication status and info.
+- `itemsSlice` — stores list of user items.
+- `otherCostsSlice` — stores list of other costs.
+- Actions for fetching, adding, editing, deleting.
+- Thunks or async middleware to sync with Firebase Firestore.
+
+---
+
+## 7. UI / UX Guidelines with Chakra UI
+
+- Use Chakra’s form controls for inputs (`Input`, `NumberInput`, `FormLabel`).
+- Use `Button` for actions.
+- Use `Table` or `List` to display items and other costs.
+- Show modals or drawers for add/edit forms.
+- Use `useToast` for success/error notifications.
+- Make layout responsive using Chakra’s `Grid` or `Flex`.
+- Provide clear error messages on validation failure.
+
+---
+
+## 8. Bonus Features Ideas (Optional)
+
+- Use Redux middleware to save state to **localStorage** for offline persistence.
+- Add sorting: by cost ascending/descending, or by name.
+- Add filtering: filter items costing more than a threshold.
+- Improve UI responsiveness for mobile views.
+- Add date/time stamps to cost entries.
+- Show charts summarizing costs.
+
+---
+
+## 9. Security & Best Practices
+
+- Use Firestore security rules to restrict read/write access to authenticated users only for their own data.
+- Never commit Firebase config secrets like private keys (client config is safe to expose).
+- Handle errors gracefully (network, auth, db).
+- Use environment variables for Firebase config in deployment.
+
+---
+
+## 10. Development & Deployment Steps
+
+1. **Initialize React App**
+    - Use Create React App or Vite.
+2. **Install Dependencies**
+    - `npm install @reduxjs/toolkit react-redux chakra-ui/react firebase`
+3. **Setup Firebase**
+    - Initialize Firebase app with config.
+    - Setup Firestore and Auth instances.
+4. **Setup Redux Store**
+    - Create slices and store.
+5. **Build Authentication UI**
+    - Sign-up, sign-in, sign-out flows.
+6. **Build Item & Other Costs Management**
+    - Forms, lists, edit/delete actions.
+7. **Sync with Firestore**
+    - Fetch user data on login.
+    - Real-time updates or polling.
+8. **Display Total Cost**
+    - Calculate and display total dynamically.
+9. **Add Bonus Features (if time permits)**
+10. **Deploy**
+    - Push code to GitHub.
+    - Deploy on Vercel or Netlify.
+11. **Submit**
+    - Share GitHub repo link and deployed URL on the form.
+
+---
+
+## 11. Helpful Resources for Firebase Beginners
+
+- [Firebase Web Quickstart Guide](https://firebase.google.com/docs/web/setup)
+- [Firebase Authentication with React Tutorial](https://firebase.google.com/docs/auth/web/start)
+- [Firestore CRUD with React Example](https://firebase.google.com/docs/firestore/manage-data/add-data)
+- [Redux Toolkit Async Thunks](https://redux-toolkit.js.org/api/createAsyncThunk)
+- [Chakra UI Getting Started](https://chakra-ui.com/docs/getting-started)
+- [React Redux Official Docs](https://react-redux.js.org/introduction/getting-started)
+
+---
+
+## 12. Example Firebase Config Code Snippet
+
+```jsx
+// src/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+export { auth, db };
+
+```
+
+---
+
+## 13. Example Firestore CRUD Usage (Add Item)
+
+```jsx
+import { collection, addDoc } from "firebase/firestore";
+import { db } from './firebase';
+
+async function addItem(userId, name, cost) {
+  try {
+    const docRef = await addDoc(collection(db, "users", userId, "items"), {
+      name,
+      cost
+    });
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+}
+
+```
+
+---
+
+## 14. Submission Checklist
+
+- Fully functional React app with all required features.
+- Redux store managing app state.
+- Firebase Authentication working properly.
+- Data persisted and synced with Firestore.
+- UI built with Chakra UI and responsive.
+- GitHub repository with clean commit history.
+- Deployed live URL accessible.
